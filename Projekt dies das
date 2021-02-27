@@ -4,6 +4,54 @@ import matplotlib as mpl
 import matplotlib.pyplot as plt
 import pandas as pd
 
+# Transfer addresses into coordinates
+
+import pip
+from pip.__main__ import _main as _main
+package_names=["geopy"]
+_main(["install"] + package_names + ["--upgrade"])
+
+from pip.__main__ import _main as _main
+package_names2=["pandas"]
+_main(["install"] + package_names2 + ["--upgrade"])
+
+import pandas as pd
+from pip.__main__ import _main as _main
+package_names3=["ratelimit"]
+_main(["install"] + package_names3 + ["--upgrade"])
+from ratelimit import limits, sleep_and_retry
+
+from pip.__main__ import _main as _main
+package_names4=["tqdm"]
+_main(["install"] + package_names4 + ["--upgrade"])
+from tqdm import tqdm
+tqdm.pandas()
+
+from pip.__main__ import _main as _main
+package_names5=["openpyxl"]
+_main(["install"] + package_names5 + ["--upgrade"])
+from openpyxl import Workbook
+
+Smart = pd.read_csv("./Smart.csv")
+
+print(Smart.head())
+
+from geopy.geocoders import Nominatim
+geolocator = Nominatim(user_agent="http")
+
+from geopy.extra.rate_limiter import RateLimiter
+geocode = RateLimiter(geolocator.geocode, min_delay_seconds=1)
+Smart["location"] =Smart["Address"].apply(geocode)
+
+Smart["point"] =Smart["location"].apply(lambda loc: tuple(loc.point) if loc else None)
+
+Smart["location"] = Smart["Name"].progress_apply(geocode)
+
+print(Smart)
+Smart.to_excel("Tabelle.xlsx")
+
+# Cleaning the data
+
 data= pd.read_excel("Smart City lon lat-2.xlsx")
 
 # data manipulation
@@ -86,3 +134,21 @@ for positionx, elementx in enumerate(xgg[:-1]):
         print(positionx,elementx, positiony,elementy)
         var = grid(liste, [elementx, xgg[positionx + 1]], [elementy, ygg[positiony + 1]])
         
+print(schools)
+
+# data frame creation
+df = pd.DataFrame(schools, columns=["Min Lon", "Max Lon", "Min Lat", "Max Lat", "Number of Schools"])
+
+import plotly.express as px
+fig = px.density_mapbox(df, lat='Min Lon', lon='Min Lat', z='Number of Schools',
+                        center=dict(lat=51, lon=6), zoom=7,
+                        opacity=0.7, range_color= [65280,255],
+                        radius=50, title="Grundschulen in Düsseldorf",
+                        mapbox_style="stamen-terrain")
+fig.show()
+
+from pip.__main__ import _main as _main
+package_names11=["psutil requests"]
+_main(["install"] + package_names11 + ["--upgrade"])
+
+fig.write_html("Grundschulen.html")
